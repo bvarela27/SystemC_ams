@@ -18,8 +18,29 @@ SCA_TDF_MODULE(adc_converter) {
             sc_assert(v_max_ > 0.0);
     }
 
+    void initialize() {
+        change_attribute_en = 0;
+        adc_sample_frequency = 8000;
+    }
+
+    void update_frequency(double adc_sample_frequency_) {
+        change_attribute_en = 1;
+        adc_sample_frequency = adc_sample_frequency_;
+    }
+
     void set_attributes() {
         set_timestep(Tm);
+
+        // To allow the module to change the attributes
+        // This is needed because the sample rate can be changed through a register
+        does_attribute_changes(); 
+    }
+
+    void change_attributes() {
+        if (change_attribute_en) {
+            change_attribute_en = 0;
+            set_timestep((1.0/adc_sample_frequency), sc_core::SC_SEC);
+        }
     }
 
     void processing() {
@@ -36,6 +57,8 @@ SCA_TDF_MODULE(adc_converter) {
     }
 
     private:
+        bool change_attribute_en;
+        double adc_sample_frequency;
         const double v_max;
         sca_core::sca_time Tm;
 };

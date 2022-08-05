@@ -52,6 +52,20 @@ int sc_main (int argc, char* argv[]) {
     sca_trace(vcdfile, filter_out, "filter_out");
     sca_trace(vcdfile, adc_out, "adc_out");
 
+    sc_start(500, sc_core::SC_US);
+
+    // FIXME
+    // Update ACD sample frequency
+    // This will be accessed through a register later
+    adc_converter0.update_frequency(MICROPHONE_SAMPLE_FREQUENCY);
+
+    sc_start(500, sc_core::SC_US);
+
+    // FIXME
+    // Update ACD sample frequency
+    // This will be accessed through a register later
+    adc_converter0.update_frequency(ADC_SAMPLE_FREQUENCY);
+
     sc_start(1000, sc_core::SC_MS);
 
     sca_util::sca_close_vcd_trace_file(vcdfile);
