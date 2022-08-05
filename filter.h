@@ -5,7 +5,7 @@
 
 SCA_TDF_MODULE(filter) {
     sca_tdf::sca_in<double> in;
-    sca_tdf::sca_out<double> out;
+    sca_tdf::sca_out<double, sca_tdf::SCA_DT_CUT> out;
 
     filter(sc_core::sc_module_name nm, double fc_,
         double gain_ = 1.0)

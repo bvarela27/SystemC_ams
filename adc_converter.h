@@ -20,7 +20,6 @@ SCA_TDF_MODULE(adc_converter) {
 
     void set_attributes() {
         set_timestep(Tm);
-        in.set_rate(2); // Downsampling
     }
 
     void processing() {

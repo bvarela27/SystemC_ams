@@ -7,11 +7,11 @@
 #include "microphone.h"
 #include <math.h>
 
-#define MICROPHONE_SAMPLE_RATE  62.5
-#define FILTER_CUTOFF_FREQUENCY 10000.0
-#define FILTER_GAIN             1.0
-#define ADC_SAMPLE_RATE         125.0
-#define ADC_NUM_BITS            32
+#define MICROPHONE_SAMPLE_FREQUENCY 44100.0
+#define FILTER_CUTOFF_FREQUENCY     18000.0
+#define FILTER_GAIN                 1.0
+#define ADC_SAMPLE_FREQUENCY        8000.0
+#define ADC_NUM_BITS                32
    
 int sc_main (int argc, char* argv[]) {
 
@@ -26,7 +26,7 @@ int sc_main (int argc, char* argv[]) {
     ////////////////////////////////////////////////////
     // Microphone
     sca_tdf::sca_signal<double> microphone_out;
-    sc_core::sc_time time_step_microphone(MICROPHONE_SAMPLE_RATE, sc_core::SC_US);
+    sc_core::sc_time time_step_microphone((1.0/MICROPHONE_SAMPLE_FREQUENCY), sc_core::SC_SEC);
     microphone microphone0("microphone", samples, time_step_microphone);
     microphone0.out(microphone_out);
 
@@ -40,7 +40,7 @@ int sc_main (int argc, char* argv[]) {
     ////////////////////////////////////////////////////
     // ADC converter
     sca_tdf::sca_signal<sc_dt::sc_int<ADC_NUM_BITS>> adc_out;
-    sc_core::sc_time time_step_adc(ADC_SAMPLE_RATE, sc_core::SC_US);
+    sc_core::sc_time time_step_adc((1.0/ADC_SAMPLE_FREQUENCY), sc_core::SC_SEC);
     adc_converter<ADC_NUM_BITS> adc_converter0("adc_converter", (pow(2,ADC_NUM_BITS-1)-1), time_step_adc);
     adc_converter0.in(filter_out);
     adc_converter0.out(adc_out);
