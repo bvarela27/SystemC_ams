@@ -23,7 +23,7 @@ SCA_TDF_MODULE(adc_converter) {
         adc_sample_frequency = 8000;
     }
 
-    void update_frequency(double adc_sample_frequency_) {
+    void set_sample_frequency(double adc_sample_frequency_) {
         change_attribute_en = 1;
         adc_sample_frequency = adc_sample_frequency_;
     }

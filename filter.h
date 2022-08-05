@@ -12,6 +12,10 @@ SCA_TDF_MODULE(filter) {
         : in("in"), out("out"), fc(fc_), gain(gain_) {   
     }
 
+    void set_gain(double gain_);
+
+    void set_cutoff_frequency(double fc_);
+
     void initialize();
 
     void processing();

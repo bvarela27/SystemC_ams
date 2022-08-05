@@ -57,14 +57,17 @@ int sc_main (int argc, char* argv[]) {
     // FIXME
     // Update ACD sample frequency
     // This will be accessed through a register later
-    adc_converter0.update_frequency(MICROPHONE_SAMPLE_FREQUENCY);
+    adc_converter0.set_sample_frequency(MICROPHONE_SAMPLE_FREQUENCY);
+    // Update filter parameters
+    filter0.set_gain(1);
+    filter0.set_cutoff_frequency(1);
 
     sc_start(500, sc_core::SC_US);
 
     // FIXME
     // Update ACD sample frequency
     // This will be accessed through a register later
-    adc_converter0.update_frequency(ADC_SAMPLE_FREQUENCY);
+    adc_converter0.set_sample_frequency(ADC_SAMPLE_FREQUENCY);
 
     sc_start(1000, sc_core::SC_MS);
 
