@@ -11,10 +11,12 @@ using namespace std;
 SCA_TDF_MODULE (microphone) {
     sca_tdf::sca_out<double> out;
 
-    microphone( sc_core::sc_module_name nm, vector<double> samples_,
+    microphone( sc_core::sc_module_name nm,
         sca_core::sca_time Tm_ = sca_core::sca_time(0.125, sc_core::SC_MS))
-        : out("out"), samples(samples_), index(0), Tm(Tm_) {
+        : out("out"), index(0), Tm(Tm_) {
     }
+
+    void initialize();
 
     void set_attributes();
 
