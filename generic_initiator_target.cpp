@@ -1,7 +1,7 @@
 #include <iostream>
 #include "systemc.h"
 #include <stdlib.h>
-#include "HammingEnc.h"
+#include "generic_initiator_target.h"
 
 // User-defined extension class
 struct ID_extension: tlm::tlm_extension<ID_extension> {
@@ -19,7 +19,7 @@ virtual void copy_from(tlm_extension_base const &ext) {
 unsigned int transaction_id;
 };
 
-tlm::tlm_sync_enum HammingEnc::nb_transport_fw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
+tlm::tlm_sync_enum generic_initiator_target::nb_transport_fw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
     ID_extension* id_extension = new ID_extension;
     trans.get_extension( id_extension );
 
@@ -28,13 +28,7 @@ tlm::tlm_sync_enum HammingEnc::nb_transport_fw( tlm::tlm_generic_payload& trans,
         trans_pending.push(&trans);
 
         // Trigger event
-        //event_thread_process.notify();
-
-        // FIXME:Remove this
-        unsigned char*   ptr = trans.get_data_ptr();
-        int data;
-        data = *reinterpret_cast<int*>(ptr);
-        cout << name() << " " << data << endl;
+        event_thread_process.notify();
 
         // Delay
         wait(delay);
@@ -51,12 +45,12 @@ tlm::tlm_sync_enum HammingEnc::nb_transport_fw( tlm::tlm_generic_payload& trans,
     return tlm::TLM_ACCEPTED;
 };
 
-void HammingEnc::thread_process() {
+void generic_initiator_target::thread_process() {
     tlm::tlm_phase phase_bw = tlm::BEGIN_RESP;
     tlm::tlm_phase phase_fw = tlm::BEGIN_REQ;
     tlm::tlm_sync_enum status_bw, status_fw;
     sc_time delay_bw, delay_fw;
-    int32_t data1;
+    int32_t data, data1;
     uint32_t encoded_data;
     ID_extension* id_extension = new ID_extension;
     tlm::tlm_generic_payload * current_trans;
@@ -69,10 +63,12 @@ void HammingEnc::thread_process() {
         trans_pending.pop();
         unsigned char*   ptr = current_trans->get_data_ptr();
         current_trans->get_extension( id_extension );
-        //data = *reinterpret_cast<uint32_t*>(ptr);
+        data = *reinterpret_cast<uint32_t*>(ptr);
         data1 = 4000;
 
-        wait(sc_time(500000, SC_NS));
+        cout << name() << " " << data << endl;
+
+        /*wait(sc_time(500000, SC_NS));
         tlm::tlm_generic_payload* trans = new tlm::tlm_generic_payload;
         delay_fw = sc_time(2, SC_NS);
 
@@ -122,11 +118,11 @@ void HammingEnc::thread_process() {
             char txt[100];
             sprintf(txt, "Error from b_transport, response status = %s", trans->get_response_string().c_str());
             SC_REPORT_ERROR("TLM-2", txt);
-        }
+        }*/
     }
 };
 
-tlm::tlm_sync_enum HammingEnc::nb_transport_bw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
+tlm::tlm_sync_enum generic_initiator_target::nb_transport_bw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
     ID_extension* id_extension = new ID_extension;
     trans.get_extension( id_extension );
 
