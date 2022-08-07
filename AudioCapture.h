@@ -44,7 +44,7 @@ SC_MODULE(AudioCapture) {
     tlm_utils::simple_target_socket<AudioCapture> target_socket;
     tlm_utils::simple_initiator_socket<AudioCapture> initiator_socket;
 
-    SC_CTOR(AudioCapture): //target_socket("target_socket"), initiator_socket("initiator_socket"),
+    SC_CTOR(AudioCapture): target_socket("target_socket"), initiator_socket("initiator_socket"),
         microphone0("microphone", sc_core::sc_time((1.0/MICROPHONE_SAMPLE_FREQUENCY_), sc_core::SC_SEC)),
         filter0("filter", FILTER_CUTOFF_FREQUENCY_, FILTER_GAIN_),
         adc_converter0("adc_converter", (pow(2,ADC_NUM_BITS_-1)-1), sc_core::sc_time((1.0/ADC_SAMPLE_FREQUENCY_), sc_core::SC_SEC)) {
