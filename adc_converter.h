@@ -8,8 +8,11 @@ using namespace std;
 
 template<int NBits>
 SCA_TDF_MODULE(adc_converter) {
+    // Events to trigger the TLM logic
+    sc_event io_request;
+
     sca_tdf::sca_in<double> in;
-    sca_tdf::sca_out<sc_dt::sc_int<NBits>> out;
+    sca_tdf::sca_de::sca_out<sc_dt::sc_int<NBits>> out;
 
     adc_converter(sc_core::sc_module_name nm, double v_max_,
         sca_core::sca_time Tm_ = sca_core::sca_time(125, sc_core::SC_MS))
@@ -54,6 +57,9 @@ SCA_TDF_MODULE(adc_converter) {
             sc_dt::sc_int<NBits> q_v_in = lround((v_in / v_max) * (pow(2, NBits-1)-1));
             out.write(q_v_in);
         }
+
+        // Trigger event
+        io_request.notify();
     }
 
     private:

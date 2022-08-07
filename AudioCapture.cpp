@@ -61,54 +61,39 @@ void AudioCapture::thread_notify() {
 
 void AudioCapture::thread_process() {
     tlm::tlm_phase phase_bw = tlm::BEGIN_RESP;
-    tlm::tlm_phase phase_fw = tlm::BEGIN_REQ;
-    tlm::tlm_sync_enum status_bw, status_fw;
-    sc_time delay_bw, delay_fw;
+    tlm::tlm_sync_enum status_bw;
+    sc_time delay_bw;
     int32_t data;
-    uint32_t encoded_data;
     ID_extension* id_extension = new ID_extension;
     tlm::tlm_generic_payload * current_trans;
-    while (true) {
 
+    while (true) {
         wait(event_thread_process);
-        // Execute Encoder with the information received
+
+        // Update register value
         current_trans = trans_pending.front();
         trans_pending.pop();
-        unsigned char*   ptr = current_trans->get_data_ptr();
-        unsigned int     len = current_trans->get_data_length();
+        unsigned char*   ptr  = current_trans->get_data_ptr();
+        unsigned int     len  = current_trans->get_data_length();
+        sc_dt::uint64    addr = current_trans->get_address();
         current_trans->get_extension( id_extension );
         data = *reinterpret_cast<uint32_t*>(ptr);
 
-        // Encoder
-        //write(data);
-        // Wait Encoder delay
-        //wait(sc_time(11, SC_NS));
-        // Read Encoder output
-        //encoded_data = read();
-        // Forward call Decoder
-        tlm::tlm_generic_payload* trans = new tlm::tlm_generic_payload;
-        delay_fw = sc_time(2, SC_NS);
-
-        trans->set_command( tlm::TLM_WRITE_COMMAND );
-        trans->set_address( DECODER_COEFF );
-        trans->set_data_length( 8 );
-        trans->set_streaming_width( 8 ); // = data_length to indicate no streaming
-        trans->set_byte_enable_ptr( 0 ); // 0 indicates unused
-        trans->set_dmi_allowed( false ); // Mandatory initial value
-        trans->set_response_status( tlm::TLM_INCOMPLETE_RESPONSE ); // Mandatory initial value
-        trans->set_extension( id_extension );
-        trans->set_data_ptr( reinterpret_cast<unsigned char*>(&encoded_data) );
-
-        cout << name() << "   BEGIN_REQ SENT " << "    " << " TRANS ID " << id_extension->transaction_id << " at time " << sc_time_stamp() << endl;
-
-        //status_fw = initiator_socket->nb_transport_fw( *trans, phase_fw, delay_fw );  // Blocking transport call
-
-        switch (status_fw) {
-            case tlm::TLM_ACCEPTED:
-                cout << name() << "   NB_TRANSPORT_FW (STATUS TLM_ACCEPTED)" << " at time " << sc_time_stamp() << endl;
+        switch (addr) {
+            case FILTER_GAIN:
+                filter0.set_gain(data);
+                cout << name() << " Register Filter Gain updated" << " at time " << sc_time_stamp() << endl;
+                break;
+            case FILTER_CUTOFF_FREQUENCY:
+                filter0.set_cutoff_frequency(data);
+                cout << name() << " Register Filter Cutoff Frequency updated" << " at time " << sc_time_stamp() << endl;
+                break;
+            case ADC_SAMPLE_FREQUENCY:
+                adc_converter0.set_sample_frequency(data);
+                cout << name() << " Register ADC Sample Frequency updated" << " at time " << sc_time_stamp() << endl;
                 break;
             default:
-                cout << name() << "   NB_TRANSPORT_FW (STATUS not expected)" << " at time " << sc_time_stamp() << endl;
+                SC_REPORT_ERROR("TLM-2", "ERROR: Unexpected address received in the AudioCapture module");
                 break;
         }
 
@@ -119,7 +104,7 @@ void AudioCapture::thread_process() {
 
         // Backward call
         delay_bw= sc_time(1, SC_NS);
-        //status_bw = target_socket->nb_transport_bw( *current_trans, phase_bw, delay_bw );
+        status_bw = target_socket->nb_transport_bw( *current_trans, phase_bw, delay_bw );
 
         switch (status_bw) {
             case tlm::TLM_ACCEPTED:
@@ -131,9 +116,9 @@ void AudioCapture::thread_process() {
         }
 
         // Initiator obliged to check response status
-        if ( trans->is_response_error() ) {
+        if ( current_trans->is_response_error() ) {
             char txt[100];
-            sprintf(txt, "Error from b_transport, response status = %s", trans->get_response_string().c_str());
+            sprintf(txt, "Error from b_transport, response status = %s", current_trans->get_response_string().c_str());
             SC_REPORT_ERROR("TLM-2", txt);
         }
         done.notify();
@@ -146,7 +131,7 @@ tlm::tlm_sync_enum AudioCapture::nb_transport_bw( tlm::tlm_generic_payload& tran
 
     if (phase == tlm::BEGIN_RESP) {
 
-        // Initiator obliged to check response status   
+        // Initiator obliged to check response status
         if (trans.is_response_error()) {
             SC_REPORT_ERROR("TLM2", "Response error from nb_transport");
         }
@@ -158,4 +143,61 @@ tlm::tlm_sync_enum AudioCapture::nb_transport_bw( tlm::tlm_generic_payload& tran
     }
 
     return tlm::TLM_ACCEPTED;
+};
+
+void AudioCapture::io_request() {
+    tlm::tlm_phase phase_fw = tlm::BEGIN_REQ;
+    tlm::tlm_sync_enum status_fw;
+    sc_time delay_fw;
+    ID_extension* id_extension = new ID_extension;
+    tlm::tlm_generic_payload * current_trans;
+
+    int id = 0;
+
+    while (true) {
+        wait(adc_converter0.io_request);
+
+        // Forward call Decoder
+        tlm::tlm_generic_payload* trans = new tlm::tlm_generic_payload;
+        ID_extension* id_extension = new ID_extension;
+        id_extension->transaction_id = id;
+        delay_fw = sc_time(2, SC_NS);
+
+        // ADC_OUT casting
+        // Note: If this is not added the value received in the other module doesn't make sense
+        sc_dt::sc_int<32> adc_out_static_cast = static_cast<sc_dt::sc_int<32>>(adc_out);
+        int adc_out_int = (int) adc_out_static_cast;
+
+        trans->set_command( tlm::TLM_WRITE_COMMAND );
+        trans->set_address( DECODER_COEFF );
+        trans->set_data_length( 8 );
+        trans->set_streaming_width( 8 ); // = data_length to indicate no streaming
+        trans->set_byte_enable_ptr( 0 ); // 0 indicates unused
+        trans->set_dmi_allowed( false ); // Mandatory initial value
+        trans->set_response_status( tlm::TLM_INCOMPLETE_RESPONSE ); // Mandatory initial value
+        trans->set_extension( id_extension );
+        trans->set_data_ptr( reinterpret_cast<unsigned char*>(&adc_out_int) );
+
+        cout << name() << "   BEGIN_REQ SENT " << "    " << " TRANS ID " << id_extension->transaction_id << " at time " << sc_time_stamp() << endl;
+
+        status_fw = initiator_socket->nb_transport_fw( *trans, phase_fw, delay_fw );  // Blocking transport call
+
+        switch (status_fw) {
+            case tlm::TLM_ACCEPTED:
+                cout << name() << "   NB_TRANSPORT_FW (STATUS TLM_ACCEPTED)" << " at time " << sc_time_stamp() << endl;
+                break;
+            default:
+                cout << name() << "   NB_TRANSPORT_FW (STATUS not expected)" << " at time " << sc_time_stamp() << endl;
+                break;
+        }
+
+        // Initiator obliged to check response status
+        if ( trans->is_response_error() ) {
+            char txt[100];
+            sprintf(txt, "Error from b_transport, response status = %s", trans->get_response_string().c_str());
+            SC_REPORT_ERROR("TLM-2", txt);
+        }
+
+        id++;
+    }
 };

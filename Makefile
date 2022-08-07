@@ -5,7 +5,7 @@ export LD_LIBRARY_PATH=$(SYSTEMC_AMS_HOME)/lib-linux64/:$(SYSTEMC_HOME)/lib-linu
 compile:
 	@echo "Compiling"
 	@g++ -I$(SYSTEMC_HOME)/include -L$(SYSTEMC_HOME)/lib-linux64 -I$(SYSTEMC_AMS_HOME)/include -L$(SYSTEMC_AMS_HOME)/lib-linux64 \
-	tb.cpp microphone.cpp filter.cpp AudioCapture.cpp -lsystemc -lsystemc-ams -lm -o ams.o
+	tb.cpp microphone.cpp filter.cpp AudioCapture.cpp HammingEnc.cpp -lsystemc -lsystemc-ams -lm -o ams.o
 
 run:
 	@echo "Running"

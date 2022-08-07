@@ -15,11 +15,11 @@
 #include "tlm_utils/simple_initiator_socket.h"
 #include "tlm_utils/simple_target_socket.h"
 
-#define MICROPHONE_SAMPLE_FREQUENCY 44100.0
-#define FILTER_CUTOFF_FREQUENCY     18000.0
-#define FILTER_GAIN                 1.0
-#define ADC_SAMPLE_FREQUENCY        8000.0
-#define ADC_NUM_BITS                32
+#define MICROPHONE_SAMPLE_FREQUENCY_ 44100.0
+#define FILTER_CUTOFF_FREQUENCY_     18000.0
+#define FILTER_GAIN_                 1.0
+#define ADC_SAMPLE_FREQUENCY_        8000.0
+#define ADC_NUM_BITS_                32
 
 using namespace std;
 
@@ -27,12 +27,12 @@ SC_MODULE(AudioCapture) {
     // AMS components
     microphone microphone0;
     filter filter0;
-    adc_converter<ADC_NUM_BITS> adc_converter0;
+    adc_converter<ADC_NUM_BITS_> adc_converter0;
 
     // AMS signals
     sca_tdf::sca_signal<double> microphone_out;
     sca_tdf::sca_signal<double> filter_out;
-    sca_tdf::sca_signal<sc_dt::sc_int<ADC_NUM_BITS>> adc_out;
+    sc_core::sc_signal<sc_dt::sc_int<ADC_NUM_BITS_>> adc_out;
 
     // Events
     sc_event event_thread_process, done;
@@ -41,13 +41,13 @@ SC_MODULE(AudioCapture) {
     queue<tlm::tlm_generic_payload*> trans_pending;
 
     // Sockets
-    //tlm_utils::simple_target_socket<AudioCapture> target_socket;
-    //tlm_utils::simple_initiator_socket<AudioCapture> initiator_socket;
+    tlm_utils::simple_target_socket<AudioCapture> target_socket;
+    tlm_utils::simple_initiator_socket<AudioCapture> initiator_socket;
 
     SC_CTOR(AudioCapture): //target_socket("target_socket"), initiator_socket("initiator_socket"),
-        microphone0("microphone", sc_core::sc_time((1.0/MICROPHONE_SAMPLE_FREQUENCY), sc_core::SC_SEC)),
-        filter0("filter", FILTER_CUTOFF_FREQUENCY, FILTER_GAIN),
-        adc_converter0("adc_converter", (pow(2,ADC_NUM_BITS-1)-1), sc_core::sc_time((1.0/ADC_SAMPLE_FREQUENCY), sc_core::SC_SEC)) {
+        microphone0("microphone", sc_core::sc_time((1.0/MICROPHONE_SAMPLE_FREQUENCY_), sc_core::SC_SEC)),
+        filter0("filter", FILTER_CUTOFF_FREQUENCY_, FILTER_GAIN_),
+        adc_converter0("adc_converter", (pow(2,ADC_NUM_BITS_-1)-1), sc_core::sc_time((1.0/ADC_SAMPLE_FREQUENCY_), sc_core::SC_SEC)) {
         
         // AMS Connections
         microphone0.out(microphone_out);
@@ -59,14 +59,16 @@ SC_MODULE(AudioCapture) {
         adc_converter0.out(adc_out);
 
         // Sockets
-        //target_socket.register_nb_transport_fw(this, &AudioCapture::nb_transport_fw);
-        //initiator_socket.register_nb_transport_bw(this, &AudioCapture::nb_transport_bw);
+        target_socket.register_nb_transport_fw(this, &AudioCapture::nb_transport_fw);
+        initiator_socket.register_nb_transport_bw(this, &AudioCapture::nb_transport_bw);
 
         // Threads
         SC_THREAD(thread_process);
+        SC_THREAD(io_request);
         SC_THREAD(thread_notify);
     }
 
+    void io_request();
     void thread_process();
     void thread_notify();
 
