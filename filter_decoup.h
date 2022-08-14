@@ -1,13 +1,13 @@
-#ifndef DEFINE_FILTER_H
-#define DEFINE_FILTER_H
+#ifndef DEFINE_FILTER_DECOUP_H
+#define DEFINE_FILTER_DECOUP_H
 
 #include "systemc-ams.h"
 
-SCA_TDF_MODULE(filter) {
-    sca_tdf::sca_in<double>     in;
-    sca_tdf::sca_out<double>    out;
+SCA_TDF_MODULE(filter_decoup) {
+    sca_tdf::sca_in<double>                         in;
+    sca_tdf::sca_out<double, sca_tdf::SCA_DT_CUT>   out;
 
-    filter(sc_core::sc_module_name nm, double fc_,
+    filter_decoup(sc_core::sc_module_name nm, double fc_,
         double gain_ = 1.0)
         : in("in"), out("out"), fc(fc_), gain(gain_) {
     }

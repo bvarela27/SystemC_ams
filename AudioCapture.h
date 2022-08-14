@@ -8,7 +8,7 @@
 #include <queue>
 #include "register_map.h"
 #include "adc_converter.h"
-#include "filter.h"
+#include "filter_decoup.h"
 #include "microphone.h"
 
 #include "tlm.h"
@@ -26,7 +26,7 @@ using namespace std;
 SC_MODULE(AudioCapture) {
     // AMS components
     microphone microphone0;
-    filter filter0;
+    filter_decoup filter0;
     adc_converter<ADC_NUM_BITS> adc_converter0;
 
     // AMS signals

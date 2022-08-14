@@ -1,4 +1,4 @@
 channel.o
-channel.tvcd
+channel.vcd
 audio_capture.o
 audio_capture.vcd
