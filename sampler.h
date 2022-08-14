@@ -7,8 +7,8 @@ SCA_TDF_MODULE(sampler) {
     sca_tdf::sca_in<double> in;   // input port
     sca_tdf::sca_out<bool>  out;  // output port
 
-    sampler(sc_core::sc_module_name nm)
-        : in("in"),out("out"), rate(20), threshold(0.2) {
+    sampler(sc_core::sc_module_name nm, double threshold_)
+        : in("in"),out("out"), rate(20), threshold(threshold_) {
 
     }
 

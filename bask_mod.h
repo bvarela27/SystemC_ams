@@ -6,6 +6,8 @@
 #include "mixer.h"
 #include "carrier.h"
 
+#define DEFAULT_CARRIER_FREQUENCY   1.0e7
+
 SC_MODULE(bask_mod) {
     sca_tdf::sca_in<bool>    in;
     sca_tdf::sca_out<double> out;
@@ -13,8 +15,8 @@ SC_MODULE(bask_mod) {
     carrier carrier_inst;
     mixer   mix;
 
-    SCA_CTOR(bask_mod): in("in"),out("out"),
-        carrier_inst("carrier", 1.0e7, sca_core::sca_time( 5.0, sc_core::SC_NS ) ),
+    SC_CTOR(bask_mod): in("in"),out("out"),
+        carrier_inst("carrier", DEFAULT_CARRIER_FREQUENCY, sca_core::sca_time( 100.0, sc_core::SC_NS ) ),
         mix("mix") {
 
         // Connections
