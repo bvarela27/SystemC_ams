@@ -8,7 +8,7 @@
 #include "sampler.h"
 
 #define DEFAULT_FILTER_GAIN                 1.0
-#define DEFAULT_FILTER_CUTOFF_FREQUENCY     3.3e6
+#define DEFAULT_FILTER_CUTOFF_FREQUENCY     0.33e6
 #define DEFAULT_SAMPLER_THRESHOLD           0.2
 
 SC_MODULE(bask_demod) {

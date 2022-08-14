@@ -2,15 +2,10 @@
 #define PROTOCOL_GEN_H
 
 #include <queue>
+#include "ams_shared.h"
 #include "systemc-ams.h"
 
-#define IDLE_BIT              1
-#define START_BIT             0
-#define NUM_BITS_DATA_ENCODED 32
-
 using namespace std;
-
-enum State {IDLE, START, IN_PKT};
 
 SCA_TDF_MODULE(protocol_gen) {
     sca_tdf::sca_out<bool> out; // output port

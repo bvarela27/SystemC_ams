@@ -6,7 +6,7 @@
 #include "mixer.h"
 #include "carrier.h"
 
-#define DEFAULT_CARRIER_FREQUENCY   1.0e7
+#define DEFAULT_CARRIER_FREQUENCY   0.1e7
 
 SC_MODULE(bask_mod) {
     sca_tdf::sca_in<bool>    in;

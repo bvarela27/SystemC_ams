@@ -10,6 +10,7 @@
 #include "bask_mod.h"
 #include "bask_demod.h"
 #include "protocol_gen.h"
+#include "protocol_det.h"
 
 #include "tlm.h"
 #include "tlm_utils/simple_initiator_socket.h"
@@ -22,6 +23,7 @@ SC_MODULE(Channel) {
     protocol_gen prot_gen0;
     bask_mod mod0;
     bask_demod demod0;
+    protocol_det prot_det0;
 
     // AMS signals
     sca_tdf::sca_signal<bool> prot_gen_out, demod_out;
@@ -37,7 +39,8 @@ SC_MODULE(Channel) {
     //tlm_utils::simple_target_socket<AudioCapture> target_socket;
     //tlm_utils::simple_initiator_socket<AudioCapture> initiator_socket;
 
-    SC_CTOR(Channel): prot_gen0("protocol_gen"), mod0("bask_mod"), demod0("bask_demod") {
+    SC_CTOR(Channel): prot_gen0("protocol_gen"), mod0("bask_mod"),
+        demod0("bask_demod"), prot_det0("protocol_det") {
         // AMS Connections
         prot_gen0.out(prot_gen_out);
 
@@ -46,6 +49,8 @@ SC_MODULE(Channel) {
 
         demod0.in(mod_out);
         demod0.out(demod_out);
+
+        prot_det0.in(demod_out);
 
         // Sockets
         //target_socket.register_nb_transport_fw(this, &AudioCapture::nb_transport_fw);

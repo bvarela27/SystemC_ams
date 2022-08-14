@@ -24,6 +24,11 @@ int sc_main(int argc, char* argv[]) {
 
 	channel0.prot_gen0.store_data(8);
 
+	sc_core::sc_start(200, sc_core::SC_US);
+	channel0.prot_gen0.store_data(234276);
+	channel0.prot_gen0.store_data(9908612);
+	channel0.prot_gen0.store_data(1997);
+
   	sc_core::sc_start(10, sc_core::SC_MS);
 
   	std::cout << "Simulation finished." << std::endl;
