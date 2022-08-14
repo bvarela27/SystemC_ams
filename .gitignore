@@ -1,1 +1,4 @@
-ams.*
+channel.o
+channel.tvcd
+audio_capture.o
+audio_capture.vcd

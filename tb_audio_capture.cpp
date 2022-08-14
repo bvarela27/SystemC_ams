@@ -21,7 +21,7 @@ int sc_main (int argc, char* argv[]) {
 
     ////////////////////////////////////////////////////
     // VCD File
-    sca_util::sca_trace_file *vcdfile= sca_util::sca_create_vcd_trace_file("ams.vcd");
+    sca_util::sca_trace_file *vcdfile= sca_util::sca_create_vcd_trace_file("audio_capture.vcd");
     sca_trace(vcdfile, AudioCapture0.microphone_out, "microphone_out");
     sca_trace(vcdfile, AudioCapture0.filter_out, "filter_out");
     sca_trace(vcdfile, AudioCapture0.adc_out, "adc_out");
