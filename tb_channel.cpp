@@ -16,7 +16,15 @@ int sc_main(int argc, char* argv[]) {
 
   	std::cout << "Simulation started..." << std::endl;
 
-  	sc_core::sc_start(400, sc_core::SC_MS);
+	sc_core::sc_start(7, sc_core::SC_US);
+
+	channel0.prot_gen0.store_data(8624);
+
+	sc_core::sc_start(200, sc_core::SC_US);
+
+	channel0.prot_gen0.store_data(8);
+
+  	sc_core::sc_start(10, sc_core::SC_MS);
 
   	std::cout << "Simulation finished." << std::endl;
 
