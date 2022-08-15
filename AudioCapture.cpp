@@ -80,11 +80,11 @@ void AudioCapture::thread_process() {
         data = *reinterpret_cast<uint32_t*>(ptr);
 
         switch (addr) {
-            case FILTER_GAIN:
+            case FILTER_AUDIO_GAIN:
                 filter0.set_gain(data);
                 cout << name() << " Register Filter Gain updated" << " at time " << sc_time_stamp() << endl;
                 break;
-            case FILTER_CUTOFF_FREQUENCY:
+            case FILTER_AUDIO_CUTOFF_FREQUENCY:
                 filter0.set_cutoff_frequency(data);
                 cout << name() << " Register Filter Cutoff Frequency updated" << " at time " << sc_time_stamp() << endl;
                 break;

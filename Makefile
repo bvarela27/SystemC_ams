@@ -10,7 +10,7 @@ compile_audio_capture:
 compile_channel:
 	@echo "Compiling"
 	@g++ -I$(SYSTEMC_HOME)/include -L$(SYSTEMC_HOME)/lib-linux64 -I$(SYSTEMC_AMS_HOME)/include -L$(SYSTEMC_AMS_HOME)/lib-linux64 \
-	Channel.cpp mixer.cpp sampler.cpp carrier.cpp rectifier.cpp filter.cpp protocol_gen.cpp protocol_det.cpp tb_channel.cpp -lsystemc -lsystemc-ams -lm -o channel.o
+	Channel.cpp mixer.cpp sampler.cpp carrier.cpp rectifier.cpp filter.cpp protocol_gen.cpp protocol_det.cpp tb_channel.cpp generic_initiator_target.cpp -lsystemc -lsystemc-ams -lm -o channel.o
 
 run_audio_capture:
 	@echo "Running"

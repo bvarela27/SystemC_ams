@@ -1,9 +1,10 @@
 #include <iostream>
 #include <stdlib.h>
 #include "Channel.h"
+#include "register_map.h"
 
 // User-defined extension class
-/*struct ID_extension: tlm::tlm_extension<ID_extension> {
+struct ID_extension: tlm::tlm_extension<ID_extension> {
 ID_extension() : transaction_id(0) {}
 virtual tlm_extension_base* clone() const { // Must override pure virtual clone method
     ID_extension* t = new ID_extension;
@@ -16,9 +17,9 @@ virtual void copy_from(tlm_extension_base const &ext) {
     transaction_id = static_cast<ID_extension const &>(ext).transaction_id;
 }
 unsigned int transaction_id;
-};*/
+};
 
-/*tlm::tlm_sync_enum AudioCapture::nb_transport_fw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
+tlm::tlm_sync_enum Channel::nb_transport_fw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
     ID_extension* id_extension = new ID_extension;
     trans.get_extension( id_extension );
 
@@ -42,7 +43,7 @@ unsigned int transaction_id;
         trans.set_response_status( tlm::TLM_GENERIC_ERROR_RESPONSE );
     }
     return tlm::TLM_ACCEPTED;
-};*/
+};
 
 void Channel::thread_notify() {
     while (true) {
@@ -59,7 +60,7 @@ void Channel::thread_notify() {
 };
 
 void Channel::thread_process() {
-    /*tlm::tlm_phase phase_bw = tlm::BEGIN_RESP;
+    tlm::tlm_phase phase_bw = tlm::BEGIN_RESP;
     tlm::tlm_sync_enum status_bw;
     sc_time delay_bw;
     int32_t data;
@@ -79,17 +80,21 @@ void Channel::thread_process() {
         data = *reinterpret_cast<uint32_t*>(ptr);
 
         switch (addr) {
-            case FILTER_GAIN:
-                filter0.set_gain(data);
+            case CARRIER_FREQUENCY:
+                mod0.carrier0.set_frequency(data);
                 cout << name() << " Register Filter Gain updated" << " at time " << sc_time_stamp() << endl;
                 break;
-            case FILTER_CUTOFF_FREQUENCY:
-                filter0.set_cutoff_frequency(data);
+            case FILTER_CHANNEL_GAIN:
+                demod0.lp.set_gain(data);
+                cout << name() << " Register Filter Gain updated" << " at time " << sc_time_stamp() << endl;
+                break;
+            case FILTER_CHANNEL_CUTOFF_FREQUENCY:
+                demod0.lp.set_cutoff_frequency(data);
                 cout << name() << " Register Filter Cutoff Frequency updated" << " at time " << sc_time_stamp() << endl;
                 break;
-            case ADC_SAMPLE_FREQUENCY:
-                adc_converter0.set_sample_frequency(data);
-                cout << name() << " Register ADC Sample Frequency updated" << " at time " << sc_time_stamp() << endl;
+            case SAMPLER_THRESHOLD:
+                demod0.sp.set_threshold(data);
+                cout << name() << " Register Sampler Threshold updated" << " at time " << sc_time_stamp() << endl;
                 break;
             default:
                 SC_REPORT_ERROR("TLM-2", "ERROR: Unexpected address received in the AudioCapture module");
@@ -121,10 +126,10 @@ void Channel::thread_process() {
             SC_REPORT_ERROR("TLM-2", txt);
         }
         done.notify();
-    }*/
+    }
 };
 
-/*tlm::tlm_sync_enum AudioCapture::nb_transport_bw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
+tlm::tlm_sync_enum Channel::nb_transport_bw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay ) {
     ID_extension* id_extension = new ID_extension;
     trans.get_extension( id_extension );
 
@@ -142,9 +147,9 @@ void Channel::thread_process() {
     }
 
     return tlm::TLM_ACCEPTED;
-};*/
+};
 
-/*void AudioCapture::io_request() {
+void Channel::io_request() {
     tlm::tlm_phase phase_fw = tlm::BEGIN_REQ;
     tlm::tlm_sync_enum status_fw;
     sc_time delay_fw;
@@ -154,7 +159,7 @@ void Channel::thread_process() {
     int id = 0;
 
     while (true) {
-        wait(adc_converter0.io_request);
+        wait(prot_det0.io_request);
 
         // Forward call Decoder
         tlm::tlm_generic_payload* trans = new tlm::tlm_generic_payload;
@@ -162,10 +167,8 @@ void Channel::thread_process() {
         id_extension->transaction_id = id;
         delay_fw = sc_time(2, SC_NS);
 
-        // ADC_OUT casting
-        // Note: If this is not added the value received in the other module doesn't make sense
-        sc_dt::sc_int<32> adc_out_static_cast = static_cast<sc_dt::sc_int<32>>(adc_out);
-        int adc_out_int = (int) adc_out_static_cast;
+        // Data encoded casting
+        uint32_t data_encoded_cast = (sc_uint<NUM_BITS_DATA_ENCODED>) prot_det0.data_encoded_received;
 
         trans->set_command( tlm::TLM_WRITE_COMMAND );
         trans->set_address( DECODER_COEFF );
@@ -175,7 +178,7 @@ void Channel::thread_process() {
         trans->set_dmi_allowed( false ); // Mandatory initial value
         trans->set_response_status( tlm::TLM_INCOMPLETE_RESPONSE ); // Mandatory initial value
         trans->set_extension( id_extension );
-        trans->set_data_ptr( reinterpret_cast<unsigned char*>(&adc_out_int) );
+        trans->set_data_ptr( reinterpret_cast<unsigned char*>(&data_encoded_cast) );
 
         cout << name() << "   BEGIN_REQ SENT " << "    " << " TRANS ID " << id_extension->transaction_id << " at time " << sc_time_stamp() << endl;
 
@@ -199,4 +202,4 @@ void Channel::thread_process() {
 
         id++;
     }
-};*/
+};

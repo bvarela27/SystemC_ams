@@ -11,6 +11,9 @@ SCA_TDF_MODULE(protocol_det) {
     // Events to trigger the TLM logic
     sc_event io_request;
 
+    // Data encoded received (This has to be a public variable)
+    sc_bv<NUM_BITS_DATA_ENCODED> data_encoded_received;
+
     sca_tdf::sca_in<bool> in;
 
     SCA_CTOR(protocol_det): in("in") {
@@ -24,7 +27,6 @@ SCA_TDF_MODULE(protocol_det) {
     private:
         State state;
         int bit_idx;
-        sc_bv<NUM_BITS_DATA_ENCODED> data_encoded_received;
 
 };
 

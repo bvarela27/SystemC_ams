@@ -36,10 +36,11 @@ SC_MODULE(Channel) {
     queue<tlm::tlm_generic_payload*> trans_pending;
 
     // Sockets
-    //tlm_utils::simple_target_socket<AudioCapture> target_socket;
-    //tlm_utils::simple_initiator_socket<AudioCapture> initiator_socket;
+    tlm_utils::simple_target_socket<Channel> target_socket;
+    tlm_utils::simple_initiator_socket<Channel> initiator_socket;
 
-    SC_CTOR(Channel): prot_gen0("protocol_gen"), mod0("bask_mod"),
+    SC_CTOR(Channel): target_socket("target_socket"), initiator_socket("initiator_socket"),
+        prot_gen0("protocol_gen"), mod0("bask_mod"),
         demod0("bask_demod"), prot_det0("protocol_det") {
         // AMS Connections
         prot_gen0.out(prot_gen_out);
@@ -53,21 +54,21 @@ SC_MODULE(Channel) {
         prot_det0.in(demod_out);
 
         // Sockets
-        //target_socket.register_nb_transport_fw(this, &AudioCapture::nb_transport_fw);
-        //initiator_socket.register_nb_transport_bw(this, &AudioCapture::nb_transport_bw);
+        target_socket.register_nb_transport_fw(this, &Channel::nb_transport_fw);
+        initiator_socket.register_nb_transport_bw(this, &Channel::nb_transport_bw);
 
         // Threads
         SC_THREAD(thread_process);
-        //SC_THREAD(io_request);
+        SC_THREAD(io_request);
         SC_THREAD(thread_notify);
     }
 
-    //void io_request();
+    void io_request();
     void thread_process();
     void thread_notify();
 
-    //virtual tlm::tlm_sync_enum nb_transport_fw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay );
-    //virtual tlm::tlm_sync_enum nb_transport_bw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay );
+    virtual tlm::tlm_sync_enum nb_transport_fw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay );
+    virtual tlm::tlm_sync_enum nb_transport_bw( tlm::tlm_generic_payload& trans, tlm::tlm_phase& phase, sc_time& delay );
 };
 
 #endif

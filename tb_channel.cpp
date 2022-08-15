@@ -1,10 +1,20 @@
 #include "systemc-ams.h"
-
+#include "generic_initiator_target.h"
 #include "Channel.h"
 
 int sc_main(int argc, char* argv[]) {
-
+    ////////////////////////////////////////////////////
+    // Channel
 	Channel channel0("Channel");
+
+	////////////////////////////////////////////////////
+    // generic_initiator_target
+    generic_initiator_target generic_initiator_target0("generic_initiator_target");
+
+	////////////////////////////////////////////////////
+    // Router
+    channel0.initiator_socket.bind( generic_initiator_target0.target_socket );
+    generic_initiator_target0.initiator_socket.bind( channel0.target_socket );
 
   	// tracing
   	sca_util::sca_trace_file* atf = sca_util::sca_create_vcd_trace_file( "channel.vcd" );

@@ -5,7 +5,6 @@ void protocol_det::initialize() {
     state = IDLE;
     bit_idx = 0;
     data_encoded_received = 0;
-
 }
 
 void protocol_det::processing() {
@@ -28,7 +27,7 @@ void protocol_det::processing() {
             bit_idx = 0;
 
             // FIXME remove this later
-            cout << "DATA RECEIVED: " << ((sc_uint<NUM_BITS_DATA_ENCODED>)data_encoded_received) << " at time " << sc_time_stamp() << endl;
+            //cout << "DATA RECEIVED: " << ((sc_uint<NUM_BITS_DATA_ENCODED>)data_encoded_received) << " at time " << sc_time_stamp() << endl;
 
             // Trigger event
             io_request.notify();

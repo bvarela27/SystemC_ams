@@ -66,7 +66,7 @@ void generic_initiator_target::thread_process() {
         data = *reinterpret_cast<uint32_t*>(ptr);
         data1 = 4000;
 
-        cout << name() << " " << data << endl;
+        cout << "DATA RECEIVED: " << data << " at time " << sc_time_stamp() << endl;
 
         /*wait(sc_time(500000, SC_NS));
         tlm::tlm_generic_payload* trans = new tlm::tlm_generic_payload;
